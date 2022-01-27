@@ -5,7 +5,7 @@ export const useVisualMode = (initial) => {
   const [history, setHistory] = useState([initial]);
 
   // moves to the next mode and saves in history only if it is not in a error state
-  const transition = (newMode, replace) => {
+   const transition = (newMode, replace) => {
     if (!replace) {
       setHistory([...history, newMode])
     }
@@ -13,7 +13,7 @@ export const useVisualMode = (initial) => {
   };
 
   // transistion to an history entry before current and update history
-  const back = () => {
+   const back = () => {
     if (history.length === 1) return;
     let hstory = history.slice(0,history.length - 1)
     setHistory([...hstory])
@@ -26,3 +26,4 @@ export const useVisualMode = (initial) => {
     back
   };
 };
+

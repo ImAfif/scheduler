@@ -5,35 +5,111 @@ import Appointment from "./Appointment";
 import Axios from "axios";
 import { getAppointmentsForDay, getInterview, getInterviewersForDay } from "helpers/selectors";
 
-export default function Application(props) {
+export default function Application() {
   const [state, setState] = useState({
     day: "Monday",
     days: [],
     appointments: {},
-    interviewers: {},
+    interviewers: {}
   });
+  
+  const countAvailable = (appointments) => {
+
+
+    const newDays = [...state.days]
+    for (let weekday of newDays) {
+      if (weekday.name == state.day) {
+        const appointmentIds = weekday.appointments
+        let count = 0
+        for (let id of appointmentIds) {
+          if (appointments[id].interview === null) {
+            count += 1
+          }
+        }
+        weekday.spots = count
+      }
+    }
+
+    return newDays;
+  }
+
+  // if (appointments. === null)
 
   
-  const setDay = (day) => setState({ ...state, day }); 
-  const interviewers = getInterviewersForDay(state, state.day); 
-  const appointments = getAppointmentsForDay(state, state.day); 
+
+
+  const cancelInterview = (id) => {
+    
+    const appointment = {
+      ...state.appointments[id],
+      interview: null
+    }
+
+    const appointments = {
+      ...state.appointments,
+      [id]: appointment
+    }
+
+    let newDays = countAvailable(appointments)
+
+    return Axios.delete(`/api/appointments/${id}`)
+      .then(() => setState({
+        ...state,
+        appointments,
+        days: newDays
+      }))
+
+  }
+
+
+
+  const bookInterview = (id, interview) => {
+
+
+    const appointment = {
+      ...state.appointments[id],
+      interview: { ...interview }
+    };
+    const appointments = {
+      ...state.appointments,
+      [id]: appointment
+    };
+
+    let newDays = countAvailable(appointments)
+
+
+    return Axios.put(`/api/appointments/${id}`, { interview })
+      .then(() => setState({
+        ...state,
+        appointments,
+        days: newDays
+      }))
+  }
+
+  //research
+  //arrow functions 
+  //.then axios
+
+  const setDay = (day) => setState({ ...state, day });
+  const interviewers = getInterviewersForDay(state, state.day);
+  const appointments = getAppointmentsForDay(state, state.day);
 
   const schedule = appointments.map((appointment) => {
     const interview = getInterview(state, appointment.interview);
-
+    
     return (
-
       <Appointment
         key={appointment.id}
         id={appointment.id}
         time={appointment.time}
         interview={interview}
         interviewers={interviewers}
+        bookInterview={bookInterview}
+        cancelInterview={cancelInterview}
+        
       />
     );
   });
-
-
   useEffect(() => {
     const fetchDays = Axios.get("http://localhost:8001/api/days");
     const fetchAppointments = Axios.get(
@@ -81,7 +157,7 @@ export default function Application(props) {
       </section>
       <section className="schedule">
         {schedule}
-        <Appointment key="last" time="5pm" />
+        <Appointment key="last" time="5pm" bookInterview={bookInterview} />
       </section>
     </main>
   );

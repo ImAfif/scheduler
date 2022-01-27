@@ -34,17 +34,22 @@ export function getInterviewersForDay(state, day) {
   const filteredInterviewers = [];
 
 
-  const filteredInterviewer = state.days.filter((weekday) => weekday.name === day)[0]; 
+  const filteredDay = state.days.filter((weekday) => weekday.name === day)[0]; 
 
-  if (!filteredInterviewer) {
+
+
+  if (!filteredDay) {
     return [];
   }
-  filteredInterviewer.appointments.forEach((appointment) => {
-    const matchedInterviewer = state.appointments[appointment]; 
+  filteredDay.interviewers.forEach((interviewer) => {
+    const matchedInterviewer = state.interviewers[interviewer]; 
+
     if (matchedInterviewer) {
       filteredInterviewers.push(matchedInterviewer);
     }
   });
+
+  console.log(filteredInterviewers)
 
   return filteredInterviewers;
 }
