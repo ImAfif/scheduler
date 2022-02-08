@@ -6,7 +6,7 @@ import { validate } from "@babel/types";
 import Button from "components/Button";
 
 export default function Form(props) {
-  const [student, setStudent] = useState(props.student || "");
+  const [student, setStudent] = useState(props.name || "");
   const [interviewer, setInterviewer] = useState(props.value || null);
   const [error, setError] = useState("");
   function reset() {
@@ -20,17 +20,12 @@ export default function Form(props) {
   }
 
   function validate() {
-    if (interviewer === "") {
-      setError("Appointments must have a student name and an interviewer");
-      return;
-    }
-    setError("");
-    props.onSave(student, interviewer);
-  }
-
-  function validate() {
     if (student === "") {
       setError("Student name cannot be blank");
+      return;
+    }
+    if (interviewer === "") {
+      setError("Appointments must have a student name and an interviewer");
       return;
     }
     setError("");

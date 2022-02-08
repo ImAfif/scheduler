@@ -3,91 +3,85 @@ import "components/Application.scss";
 import DayList from "./DayList";
 import Appointment from "./Appointment";
 import Axios from "axios";
-import { getAppointmentsForDay, getInterview, getInterviewersForDay } from "helpers/selectors";
+import {
+  getAppointmentsForDay,
+  getInterview,
+  getInterviewersForDay,
+} from "helpers/selectors";
 
 export default function Application() {
   const [state, setState] = useState({
     day: "Monday",
     days: [],
     appointments: {},
-    interviewers: {}
+    interviewers: {},
   });
-  
+
   const countAvailable = (appointments) => {
-
-
-    const newDays = [...state.days]
+    const newDays = [...state.days];
     for (let weekday of newDays) {
-      if (weekday.name == state.day) {
-        const appointmentIds = weekday.appointments
-        let count = 0
+      if (weekday.name === state.day) {
+        const appointmentIds = weekday.appointments;
+        let count = 0;
         for (let id of appointmentIds) {
           if (appointments[id].interview === null) {
-            count += 1
+            count += 1;
           }
         }
-        weekday.spots = count
+        weekday.spots = count;
       }
     }
 
     return newDays;
-  }
+  };
 
   // if (appointments. === null)
 
-  
-
-
   const cancelInterview = (id) => {
-    
     const appointment = {
       ...state.appointments[id],
-      interview: null
-    }
+      interview: null,
+    };
 
     const appointments = {
       ...state.appointments,
-      [id]: appointment
-    }
+      [id]: appointment,
+    };
 
-    let newDays = countAvailable(appointments)
+    let newDays = countAvailable(appointments);
 
-    return Axios.delete(`/api/appointments/${id}`)
-      .then(() => setState({
+    return Axios.delete(`/api/appointments/${id}`).then(() =>
+      setState({
         ...state,
         appointments,
-        days: newDays
-      }))
-
-  }
-
-
+        days: newDays,
+      })
+    );
+  };
 
   const bookInterview = (id, interview) => {
-
-
     const appointment = {
       ...state.appointments[id],
-      interview: { ...interview }
+      interview: { ...interview },
     };
     const appointments = {
       ...state.appointments,
-      [id]: appointment
+      [id]: appointment,
     };
 
-    let newDays = countAvailable(appointments)
+    let newDays = countAvailable(appointments);
 
-
-    return Axios.put(`/api/appointments/${id}`, { interview })
-      .then(() => setState({
+    return Axios.put(`/api/appointments/${id}`, { interview }).then(() =>
+      setState({
         ...state,
         appointments,
-        days: newDays
-      }))
-  }
+        days: newDays,
+      })
+    );
+  };
 
   //research
-  //arrow functions 
+  //arrow functions
   //.then axios
 
   const setDay = (day) => setState({ ...state, day });
@@ -96,7 +90,7 @@ export default function Application() {
 
   const schedule = appointments.map((appointment) => {
     const interview = getInterview(state, appointment.interview);
-    
+
     return (
       <Appointment
         key={appointment.id}
@@ -106,7 +100,6 @@ export default function Application() {
         interviewers={interviewers}
         bookInterview={bookInterview}
         cancelInterview={cancelInterview}
-        
       />
     );
   });
